@@ -310,8 +310,6 @@ const App: React.FC = () => {
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         coupleNames={state.coupleNames}
-        customLogo={state.customLogo}
-        onUpdateLogo={updateLogo}
         onUpdateNames={updateNames}
       />
 
