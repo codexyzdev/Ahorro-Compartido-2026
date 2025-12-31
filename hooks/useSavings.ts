@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { SavingsState, Transaction, SavingSlot } from '../types';
+import { SavingsState, Transaction } from '../types';
 import { STORAGE_KEY, INITIAL_SLOTS, GOAL_AMOUNT, TOTAL_SLOTS, GOAL_YEAR } from '../constants';
 
 const EMOTIONAL_MESSAGES = [

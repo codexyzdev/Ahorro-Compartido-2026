@@ -23,5 +23,4 @@ export interface SavingsState {
     partner2: string;
   };
   purpose?: string;
-  customLogo?: string; // Almacena el logo en base64 generado por IA
 }
