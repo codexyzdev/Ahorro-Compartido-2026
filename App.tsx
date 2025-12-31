@@ -1,7 +1,7 @@
 
 import React, { useState, useRef } from 'react';
-import { 
-  Heart, TrendingUp, Calendar, History, Settings, Trophy, ArrowRight, Sparkles, CheckCircle2 
+import {
+  Heart, TrendingUp, Calendar, History, Settings, Trophy, ArrowRight, Sparkles, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSavings } from './hooks/useSavings';
@@ -11,28 +11,40 @@ import { HistoryPanel } from './components/HistoryPanel';
 import { ParticleSystem, Particle } from './components/ParticleSystem';
 import { SettingsModal } from './components/SettingsModal';
 import { GOAL_AMOUNT } from './constants';
+import { useDriveSync } from './hooks/useDriveSync';
+import { Cloud, CloudOff, RefreshCw, LogOut } from 'lucide-react';
+
 
 const App: React.FC = () => {
-  const { 
-    state, totalSaved, remainingToGoal, completedSlotsCount, 
+  const {
+    state, setState, totalSaved, remainingToGoal, completedSlotsCount,
     progressPercent, isChallengeComplete, daysLeft,
-    groupedHistory, handleDeposit, updateNames, updateLogo 
+    groupedHistory, handleDeposit, updateNames, updateLogo
   } = useSavings();
+
+  const handlePullSuccess = React.useCallback((newState: any) => {
+    setState(newState);
+  }, [setState]);
+
+  const {
+    login, logout, isAuthenticated, isSyncing, lastSyncTime, syncToDrive
+  } = useDriveSync(state, handlePullSuccess);
+
 
   const [depositAmount, setDepositAmount] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<'grid' | 'stats'>('grid');
-  const [notification, setNotification] = useState<{message: string, type: 'success' | 'info'} | null>(null);
+  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'info' } | null>(null);
   const [recentlyUpdatedSlots, setRecentlyUpdatedSlots] = useState<number[]>([]);
   const [particles, setParticles] = useState<Particle[]>([]);
-  
+
   const inputContainerRef = useRef<HTMLDivElement>(null);
 
   const triggerParticles = (affectedSlotIds: number[]) => {
     if (!inputContainerRef.current) return;
-    
+
     const containerRect = inputContainerRef.current.getBoundingClientRect();
     const startX = containerRect.left + containerRect.width / 2;
     const startY = containerRect.top + containerRect.height / 2;
@@ -54,7 +66,7 @@ const App: React.FC = () => {
     }).filter(p => p !== null) as Particle[];
 
     setParticles(prev => [...prev, ...newParticles]);
-    
+
     newParticles.forEach((p) => {
       setTimeout(() => {
         const slotId = parseInt(p.id.split('-')[0]);
@@ -107,7 +119,44 @@ const App: React.FC = () => {
               <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest truncate">{state.coupleNames.partner1} & {state.coupleNames.partner2}</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-black uppercase text-emerald-600 flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    Sincronizado
+                  </span>
+                  <span className="text-[9px] text-slate-400">
+                    {isSyncing ? 'Sincronizando...' : lastSyncTime ? `Hoy, ${lastSyncTime}` : 'Recién'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => syncToDrive()}
+                  disabled={isSyncing}
+                  className={`p-1.5 hover:bg-white rounded-full transition-all ${isSyncing ? 'animate-spin text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}`}
+                  title="Sincronizar ahora"
+                >
+                  <RefreshCw size={14} />
+                </button>
+                <div className="w-px h-4 bg-slate-200" />
+                <button
+                  onClick={logout}
+                  className="p-1.5 hover:bg-white rounded-full text-slate-400 hover:text-rose-500 transition-all"
+                  title="Cerrar sesión de Google"
+                >
+                  <LogOut size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => login()}
+                className="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 shadow-sm shadow-rose-200"
+              >
+                <Cloud size={16} />
+                <span>CONECTAR NUBE</span>
+              </button>
+            )}
             <button onClick={() => setShowSettings(true)} className="p-2.5 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><Settings size={20} /></button>
             <button onClick={() => setShowHistory(true)} className="p-2.5 hover:bg-slate-100 rounded-full relative transition-colors">
               <History size={20} className="text-slate-600" />
@@ -120,10 +169,10 @@ const App: React.FC = () => {
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <AnimatePresence>
           {notification && (
-            <motion.div 
-              initial={{ opacity: 0, y: -20, scale: 0.95 }} 
-              animate={{ opacity: 1, y: 0, scale: 1 }} 
-              exit={{ opacity: 0, y: -20, scale: 0.95 }} 
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
               className={`p-4 rounded-2xl flex items-center gap-3 shadow-lg border ${notification.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-blue-50 border-blue-100 text-blue-800'}`}
             >
               <Sparkles size={18} className="text-amber-500 animate-pulse" />
@@ -147,11 +196,11 @@ const App: React.FC = () => {
                   <span className="text-rose-600 font-bold">{progressPercent.toFixed(1)}%</span>
                 </div>
                 <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${progressPercent}%` }} 
+                    animate={{ width: `${progressPercent}%` }}
                     transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-rose-500 to-amber-400 rounded-full shadow-sm" 
+                    className="h-full bg-gradient-to-r from-rose-500 to-amber-400 rounded-full shadow-sm"
                   />
                 </div>
               </div>
@@ -176,7 +225,7 @@ const App: React.FC = () => {
         </section>
 
         {!isChallengeComplete ? (
-          <motion.section 
+          <motion.section
             layout
             className={`rounded-3xl p-6 text-white shadow-xl transition-all duration-500 ${isConfirming ? 'bg-emerald-600 shadow-emerald-200' : 'bg-slate-900 shadow-slate-200'}`}
           >
@@ -188,16 +237,16 @@ const App: React.FC = () => {
               <div className="flex w-full md:w-auto gap-3" ref={inputContainerRef}>
                 <div className="relative flex-1 md:w-48">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 font-black">$</span>
-                  <input 
-                    type="number" 
-                    value={depositAmount} 
-                    onChange={(e) => setDepositAmount(e.target.value)} 
-                    placeholder="0.00" 
-                    className="w-full bg-white/10 border border-white/20 rounded-2xl py-3 pl-8 pr-4 text-white font-black outline-none focus:bg-white/20 transition-all text-lg shadow-inner" 
+                  <input
+                    type="number"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full bg-white/10 border border-white/20 rounded-2xl py-3 pl-8 pr-4 text-white font-black outline-none focus:bg-white/20 transition-all text-lg shadow-inner"
                   />
                 </div>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className={`px-8 py-3 rounded-2xl font-black flex items-center gap-2 transition-all active:scale-95 shadow-lg ${isConfirming ? 'bg-white text-emerald-600' : 'bg-rose-500 text-white hover:bg-rose-400'}`}
                 >
                   {isConfirming ? 'Confirmar' : 'Guardar'} <ArrowRight size={20} />
@@ -217,9 +266,9 @@ const App: React.FC = () => {
         <div className="space-y-6">
           <div className="flex gap-6 border-b border-slate-200">
             {(['grid', 'stats'] as const).map(tab => (
-              <button 
-                key={tab} 
-                onClick={() => setActiveTab(tab)} 
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
                 className={`pb-3 px-1 text-xs font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab ? 'text-rose-600' : 'text-slate-400 hover:text-slate-600'}`}
               >
                 {tab === 'grid' ? 'Tablero' : 'Métricas'}
@@ -227,7 +276,7 @@ const App: React.FC = () => {
               </button>
             ))}
           </div>
-          
+
           <AnimatePresence mode="wait">
             {activeTab === 'grid' ? (
               <motion.div key="grid" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-3">
@@ -255,9 +304,9 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      <SettingsModal 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
         coupleNames={state.coupleNames}
         customLogo={state.customLogo}
         onUpdateLogo={updateLogo}

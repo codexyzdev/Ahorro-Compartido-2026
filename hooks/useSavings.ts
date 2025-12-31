@@ -28,17 +28,17 @@ export const useSavings = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
-  const totalSaved = useMemo(() => 
-    state.slots.reduce((acc, slot) => acc + slot.currentAmount, 0), 
+  const totalSaved = useMemo(() =>
+    state.slots.reduce((acc, slot) => acc + slot.currentAmount, 0),
     [state.slots]
   );
 
   const remainingToGoal = GOAL_AMOUNT - totalSaved;
-  const completedSlotsCount = useMemo(() => 
-    state.slots.filter(s => s.isCompleted).length, 
+  const completedSlotsCount = useMemo(() =>
+    state.slots.filter(s => s.isCompleted).length,
     [state.slots]
   );
-  
+
   const progressPercent = (totalSaved / GOAL_AMOUNT) * 100;
   const isChallengeComplete = completedSlotsCount === TOTAL_SLOTS;
 
@@ -46,7 +46,7 @@ export const useSavings = () => {
     const today = new Date();
     const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const deadline = new Date(GOAL_YEAR, 11, 31);
-    
+
     if (todayNormalized > deadline) return 0;
     const diffTime = deadline.getTime() - todayNormalized.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -113,8 +113,8 @@ export const useSavings = () => {
         slots: newSlots,
         history: [newTransaction, ...prev.history].slice(0, 200)
       }));
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: `${EMOTIONAL_MESSAGES[Math.floor(Math.random() * EMOTIONAL_MESSAGES.length)]} +$${amount}`,
         affectedSlots
       };
@@ -132,6 +132,7 @@ export const useSavings = () => {
 
   return {
     state,
+    setState, // Exportado para permitir actualizaciones desde Drive
     totalSaved,
     remainingToGoal,
     completedSlotsCount,
