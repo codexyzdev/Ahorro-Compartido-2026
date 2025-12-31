@@ -108,59 +108,61 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 pb-24 lg:pb-8 text-slate-900 overflow-x-hidden">
       <ParticleSystem particles={particles} />
 
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 py-4 shadow-sm">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-rose-50 rounded-xl overflow-hidden flex items-center justify-center border border-rose-100 shadow-sm transition-transform active:scale-95">
-              {state.customLogo ? <img src={state.customLogo} alt="Logo" className="w-full h-full object-cover" /> : <Heart className="text-rose-500 fill-rose-500" size={24} />}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-3 sm:px-4 py-3 sm:py-4 shadow-sm">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rose-50 rounded-xl overflow-hidden flex items-center justify-center border border-rose-100 shadow-sm transition-transform active:scale-95 shrink-0">
+              {state.customLogo ? <img src={state.customLogo} alt="Logo" className="w-full h-full object-cover" /> : <Heart className="text-rose-500 fill-rose-500 sm:w-6 sm:h-6" size={20} />}
             </div>
-            <div>
-              <h1 className="font-serif text-xl font-bold leading-tight">Reto 2026</h1>
-              <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest truncate">{state.coupleNames.partner1} & {state.coupleNames.partner2}</p>
+            <div className="min-w-0">
+              <h1 className="font-serif text-lg sm:text-xl font-bold leading-tight truncate">Reto 2026</h1>
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-black uppercase tracking-widest truncate">{state.coupleNames.partner1} & {state.coupleNames.partner2}</p>
             </div>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-1.5 sm:gap-2 items-center shrink-0">
             {isAuthenticated ? (
-              <div className="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+              <div className="flex items-center gap-1.5 sm:gap-3 bg-slate-50 px-2 sm:px-3 py-1.5 rounded-full border border-slate-100">
                 <div className="flex flex-col items-end">
                   <span className="text-[10px] font-black uppercase text-emerald-600 flex items-center gap-1">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    Sincronizado
+                    <span className="hidden xs:inline">Sincronizado</span>
                   </span>
-                  <span className="text-[9px] text-slate-400">
+                  <span className="text-[9px] text-slate-400 hidden sm:inline">
                     {isSyncing ? 'Sincronizando...' : lastSyncTime ? `Hoy, ${lastSyncTime}` : 'Recién'}
                   </span>
                 </div>
-                <button
-                  onClick={() => syncToDrive()}
-                  disabled={isSyncing}
-                  className={`p-1.5 hover:bg-white rounded-full transition-all ${isSyncing ? 'animate-spin text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}`}
-                  title="Sincronizar ahora"
-                >
-                  <RefreshCw size={14} />
-                </button>
-                <div className="w-px h-4 bg-slate-200" />
-                <button
-                  onClick={logout}
-                  className="p-1.5 hover:bg-white rounded-full text-slate-400 hover:text-rose-500 transition-all"
-                  title="Cerrar sesión de Google"
-                >
-                  <LogOut size={14} />
-                </button>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <button
+                    onClick={() => syncToDrive()}
+                    disabled={isSyncing}
+                    className={`p-1.5 hover:bg-white rounded-full transition-all ${isSyncing ? 'animate-spin text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}`}
+                    title="Sincronizar ahora"
+                  >
+                    <RefreshCw size={14} />
+                  </button>
+                  <div className="w-px h-4 bg-slate-200" />
+                  <button
+                    onClick={logout}
+                    className="p-1.5 hover:bg-white rounded-full text-slate-400 hover:text-rose-500 transition-all"
+                    title="Cerrar sesión de Google"
+                  >
+                    <LogOut size={14} />
+                  </button>
+                </div>
               </div>
             ) : (
               <button
                 onClick={() => login()}
-                className="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-black transition-all active:scale-95 shadow-sm shadow-rose-200"
+                className="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-black transition-all active:scale-95 shadow-sm shadow-rose-200"
               >
-                <Cloud size={16} />
-                <span>CONECTAR NUBE</span>
+                <Cloud size={14} className="sm:w-4 sm:h-4" />
+                <span className="xs:inline">CONECTAR</span>
               </button>
             )}
-            <button onClick={() => setShowSettings(true)} className="p-2.5 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><Settings size={20} /></button>
-            <button onClick={() => setShowHistory(true)} className="p-2.5 hover:bg-slate-100 rounded-full relative transition-colors">
-              <History size={20} className="text-slate-600" />
-              {state.history.length > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white" />}
+            <button onClick={() => setShowSettings(true)} className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><Settings size={18} className="sm:w-5 sm:h-5" /></button>
+            <button onClick={() => setShowHistory(true)} className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-full relative transition-colors">
+              <History size={18} className="sm:w-5 sm:h-5 text-slate-600" />
+              {state.history.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 sm:w-2.5 h-2 sm:h-2.5 bg-rose-500 rounded-full border-2 border-white" />}
             </button>
           </div>
         </div>
