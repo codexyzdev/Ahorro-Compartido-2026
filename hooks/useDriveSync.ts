@@ -2,7 +2,6 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { findDataFile, downloadFile, uploadFile } from '../services/drive';
 import { SavingsState } from '../types';
-import { STORAGE_KEY } from '../constants';
 
 export function useDriveSync(currentState: SavingsState, onPullSuccess: (newState: SavingsState) => void) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
