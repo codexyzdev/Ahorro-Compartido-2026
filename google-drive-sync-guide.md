@@ -13,7 +13,9 @@ Este documento detalla la implementación para sincronizar el progreso de la apl
 1. Crear proyecto en [Google Cloud Console](https://console.cloud.google.com/).
 2. Habilitar **Google Drive API**.
 3. Crear **OAuth 2.0 Client ID** (Tipo: Web Application).
-4. Agregar Orígenes Autorizados (ej: `http://localhost:5173`).
+4. Agregar Orígenes Autorizados:
+   - Desarrollo: `http://localhost:3000`
+   - Producción: `https://ahorro-compartido-2026.vercel.app/`
 5. Configurar `.env`:
    ```env
    VITE_GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
