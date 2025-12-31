@@ -28,7 +28,7 @@ export const SettingsModal: React.FC<Props> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", damping: 25 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="bg-white w-full max-w-md rounded-3xl shadow-2xl relative z-10 overflow-hidden border border-white/20"
           >
             <div className="p-6 border-b bg-slate-50 flex justify-between items-center">
