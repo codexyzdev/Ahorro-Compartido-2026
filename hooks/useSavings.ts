@@ -20,7 +20,8 @@ export const useSavings = () => {
     return {
       slots: INITIAL_SLOTS,
       history: [],
-      coupleNames: { partner1: 'Tú', partner2: 'Tu Pareja' }
+      coupleNames: { partner1: 'Tú', partner2: 'Tu Pareja' },
+      purpose: 'nuestro sueño'
     };
   });
 
@@ -130,6 +131,10 @@ export const useSavings = () => {
     setState(prev => ({ ...prev, customLogo: base64 }));
   };
 
+  const updatePurpose = (purpose: string) => {
+    setState(prev => ({ ...prev, purpose }));
+  };
+
   return {
     state,
     setState, // Exportado para permitir actualizaciones desde Drive
@@ -142,6 +147,7 @@ export const useSavings = () => {
     groupedHistory,
     handleDeposit,
     updateNames,
-    updateLogo
+    updateLogo,
+    updatePurpose
   };
 };

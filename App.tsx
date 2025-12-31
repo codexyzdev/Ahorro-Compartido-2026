@@ -19,7 +19,7 @@ const App: React.FC = () => {
   const {
     state, setState, totalSaved, remainingToGoal, completedSlotsCount,
     progressPercent, isChallengeComplete, daysLeft,
-    groupedHistory, handleDeposit, updateNames, updateLogo
+    groupedHistory, handleDeposit, updateNames, updateLogo, updatePurpose
   } = useSavings();
 
   const handlePullSuccess = React.useCallback((newState: any) => {
@@ -198,7 +198,7 @@ const App: React.FC = () => {
               </div>
               <div className="mt-8 space-y-2">
                 <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
-                  <span>Progreso del viaje</span>
+                  <span>Progreso de {state.purpose}</span>
                   <span className="text-rose-600 font-bold">{progressPercent.toFixed(1)}%</span>
                 </div>
                 <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5">
@@ -237,8 +237,8 @@ const App: React.FC = () => {
           >
             <form onSubmit={onDepositSubmit} className="flex flex-col md:flex-row gap-4 items-center">
               <div className="flex-1 text-center md:text-left">
-                <h3 className="text-lg font-bold">{isConfirming ? '¿Confirmamos este ahorro?' : 'Nuevo aporte al sueño'}</h3>
-                <p className="text-xs opacity-70">Ahorro compartido para vuestro planes en 2026.</p>
+                <h3 className="text-lg font-bold">{isConfirming ? '¿Confirmamos este ahorro?' : `Nuevo aporte a ${state.purpose}`}</h3>
+                <p className="text-xs opacity-70">Ahorro compartido para vuestros planes en 2026.</p>
               </div>
               <div className="flex w-full md:w-auto gap-3" ref={inputContainerRef}>
                 <div className="relative flex-1 md:w-48">
@@ -314,10 +314,17 @@ const App: React.FC = () => {
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         coupleNames={state.coupleNames}
+        purpose={state.purpose || ''}
         onUpdateNames={updateNames}
+        onUpdatePurpose={updatePurpose}
       />
 
-      <HistoryPanel isOpen={showHistory} onClose={() => setShowHistory(false)} groupedHistory={groupedHistory} />
+      <HistoryPanel
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        groupedHistory={groupedHistory}
+        purpose={state.purpose}
+      />
     </div>
   );
 };

@@ -1,17 +1,19 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User } from 'lucide-react';
+import { X, User, Sparkles } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   coupleNames: { partner1: string; partner2: string };
+  purpose: string;
   onUpdateNames: (p1: string, p2: string) => void;
+  onUpdatePurpose: (purpose: string) => void;
 }
 
 export const SettingsModal: React.FC<Props> = ({
-  isOpen, onClose, coupleNames, onUpdateNames
+  isOpen, onClose, coupleNames, purpose, onUpdateNames, onUpdatePurpose
 }) => {
   return (
     <AnimatePresence>
@@ -61,6 +63,22 @@ export const SettingsModal: React.FC<Props> = ({
                       className="w-full bg-slate-50 border border-slate-200 py-3.5 pl-11 pr-4 rounded-2xl font-bold focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500/50 outline-none transition-all"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Purpose Section */}
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Propósito del Reto</p>
+                <div className="relative group">
+                  <div className="absolute left-4 top-4 text-slate-300 group-focus-within:text-rose-400 transition-colors">
+                    <Sparkles size={18} />
+                  </div>
+                  <textarea
+                    value={purpose}
+                    onChange={(e) => onUpdatePurpose(e.target.value)}
+                    placeholder="Ej: Nuestro primer viaje juntos"
+                    className="w-full bg-slate-50 border border-slate-200 py-3.5 pl-11 pr-4 rounded-2xl font-bold focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500/50 outline-none transition-all resize-none h-24"
+                  />
                 </div>
               </div>
 

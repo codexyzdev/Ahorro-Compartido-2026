@@ -8,26 +8,27 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   groupedHistory: { [key: string]: { transactions: Transaction[], total: number } };
+  purpose?: string;
 }
 
-export const HistoryPanel: React.FC<Props> = ({ isOpen, onClose, groupedHistory }) => {
+export const HistoryPanel: React.FC<Props> = ({ isOpen, onClose, groupedHistory, purpose = 'sueño' }) => {
   const monthKeys = Object.keys(groupedHistory);
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            onClick={onClose} 
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-40" 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-40"
           />
-          <motion.div 
-            initial={{ x: '100%' }} 
-            animate={{ x: 0 }} 
-            exit={{ x: '100%' }} 
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
           >
@@ -38,8 +39,8 @@ export const HistoryPanel: React.FC<Props> = ({ isOpen, onClose, groupedHistory 
                 </div>
                 <h3 className="font-serif text-xl font-bold text-slate-900">Nuestra Trayectoria</h3>
               </div>
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="text-slate-400 hover:text-rose-500 p-2 active:scale-90 transition-transform"
               >
                 <X size={28} />
@@ -50,7 +51,7 @@ export const HistoryPanel: React.FC<Props> = ({ isOpen, onClose, groupedHistory 
               {monthKeys.length === 0 ? (
                 <div className="text-center py-20 opacity-30">
                   <History size={64} className="mx-auto mb-4 stroke-1" />
-                  <p className="font-black uppercase tracking-widest text-xs">Vuestro viaje empieza aquí</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Vuestro {purpose} empieza aquí</p>
                 </div>
               ) : (
                 monthKeys.map((month) => {
@@ -74,8 +75,8 @@ export const HistoryPanel: React.FC<Props> = ({ isOpen, onClose, groupedHistory 
                           <div key={t.id} className="relative group">
                             {/* Punto de la línea de tiempo */}
                             <div className="absolute -left-[41.5px] top-2.5 w-4 h-4 rounded-full bg-white border-[3px] border-rose-500 ring-4 ring-white shadow-sm transition-transform group-hover:scale-125 z-10" />
-                            
-                            <motion.div 
+
+                            <motion.div
                               whileHover={{ y: -2 }}
                               className="bg-white border border-slate-200 p-5 rounded-2xl hover:border-rose-300 hover:shadow-md transition-all group shadow-sm"
                             >
@@ -92,8 +93,8 @@ export const HistoryPanel: React.FC<Props> = ({ isOpen, onClose, groupedHistory 
                               </div>
                               <div className="mt-4 pt-4 border-t border-slate-50 flex flex-wrap gap-2">
                                 {t.affectedSlots.map(id => (
-                                  <span 
-                                    key={id} 
+                                  <span
+                                    key={id}
                                     className="bg-slate-50 text-[10px] font-black text-slate-500 px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-all"
                                   >
                                     #{id}
