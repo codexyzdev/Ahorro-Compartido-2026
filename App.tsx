@@ -111,8 +111,12 @@ const App: React.FC = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-3 sm:px-4 py-3 sm:py-4 shadow-sm">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rose-50 rounded-xl overflow-hidden flex items-center justify-center border border-rose-100 shadow-sm transition-transform active:scale-95 shrink-0">
-              {state.customLogo ? <img src={state.customLogo} alt="Logo" className="w-full h-full object-cover" /> : <Heart className="text-rose-500 fill-rose-500 sm:w-6 sm:h-6" size={20} />}
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center border border-slate-100 shadow-sm transition-transform active:scale-95 shrink-0 p-1">
+              {state.customLogo ? (
+                <img src={state.customLogo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <img src="/logo.webp" alt="Logo" className="w-full h-full object-contain" />
+              )}
             </div>
             <div className="min-w-0">
               <h1 className="font-serif text-lg sm:text-xl font-bold leading-tight truncate">Reto 2026</h1>
