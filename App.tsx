@@ -1,18 +1,18 @@
 
 import React, { useState, useRef } from 'react';
 import {
-  Heart, TrendingUp, Calendar, History, Settings, Trophy, ArrowRight, Sparkles, CheckCircle2
+  Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSavings } from './hooks/useSavings';
-import { MagicNumber } from './components/MagicNumber';
 import { SlotCard } from './components/SlotCard';
 import { HistoryPanel } from './components/HistoryPanel';
 import { ParticleSystem, Particle } from './components/ParticleSystem';
 import { SettingsModal } from './components/SettingsModal';
-import { GOAL_AMOUNT } from './constants';
+import { Header } from './components/Header';
+import { StatsSummary } from './components/StatsSummary';
+import { DepositSection } from './components/DepositSection';
 import { useDriveSync } from './hooks/useDriveSync';
-import { Cloud, CloudOff, RefreshCw, LogOut } from 'lucide-react';
 
 
 const App: React.FC = () => {
@@ -108,69 +108,20 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 pb-24 lg:pb-8 text-slate-900 overflow-x-hidden">
       <ParticleSystem particles={particles} />
 
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-3 sm:px-4 py-3 sm:py-4 shadow-sm">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center border border-slate-100 shadow-sm transition-transform active:scale-95 shrink-0 p-1">
-              {state.customLogo ? (
-                <img src={state.customLogo} alt="Logo" className="w-full h-full object-cover" />
-              ) : (
-                <img src="/logo.webp" alt="Logo" className="w-full h-full object-contain" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <h1 className="font-serif text-lg sm:text-xl font-bold leading-tight truncate">Reto 2026</h1>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 font-black uppercase tracking-widest truncate">{state.coupleNames.partner1} & {state.coupleNames.partner2}</p>
-            </div>
-          </div>
-          <div className="flex gap-1.5 sm:gap-2 items-center shrink-0">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-1.5 sm:gap-3 bg-slate-50 px-2 sm:px-3 py-1.5 rounded-full border border-slate-100">
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black uppercase text-emerald-600 flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    <span className="hidden xs:inline">Sincronizado</span>
-                  </span>
-                  <span className="text-[9px] text-slate-400 hidden sm:inline">
-                    {isSyncing ? 'Sincronizando...' : lastSyncTime ? `Hoy, ${lastSyncTime}` : 'Recién'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <button
-                    onClick={() => syncToDrive()}
-                    disabled={isSyncing}
-                    className={`p-1.5 hover:bg-white rounded-full transition-all ${isSyncing ? 'animate-spin text-emerald-500' : 'text-slate-400 hover:text-emerald-500'}`}
-                    title="Sincronizar ahora"
-                  >
-                    <RefreshCw size={14} />
-                  </button>
-                  <div className="w-px h-4 bg-slate-200" />
-                  <button
-                    onClick={logout}
-                    className="p-1.5 hover:bg-white rounded-full text-slate-400 hover:text-rose-500 transition-all"
-                    title="Cerrar sesión de Google"
-                  >
-                    <LogOut size={14} />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => login()}
-                className="flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-3 sm:px-4 py-2 rounded-xl text-[10px] sm:text-xs font-black transition-all active:scale-95 shadow-sm shadow-rose-200"
-              >
-                <Cloud size={14} className="sm:w-4 sm:h-4" />
-                <span className="xs:inline">CONECTAR</span>
-              </button>
-            )}
-            <button onClick={() => setShowSettings(true)} className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"><Settings size={18} className="sm:w-5 sm:h-5" /></button>
-            <button onClick={() => setShowHistory(true)} className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-full relative transition-colors">
-              <History size={18} className="sm:w-5 sm:h-5 text-slate-600" />
-              {state.history.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 sm:w-2.5 h-2 sm:h-2.5 bg-rose-500 rounded-full border-2 border-white" />}
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header
+        customLogo={state.customLogo}
+        partner1={state.coupleNames.partner1}
+        partner2={state.coupleNames.partner2}
+        isAuthenticated={isAuthenticated}
+        isSyncing={isSyncing}
+        lastSyncTime={lastSyncTime}
+        historyLength={state.history.length}
+        onLogin={login}
+        onLogout={logout}
+        onSync={syncToDrive}
+        onOpenSettings={() => setShowSettings(true)}
+        onOpenHistory={() => setShowHistory(true)}
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <AnimatePresence>
@@ -187,87 +138,23 @@ const App: React.FC = () => {
           )}
         </AnimatePresence>
 
-        <section className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm relative overflow-hidden">
-          <div className="absolute -right-8 -top-8 p-8 opacity-[0.03] pointer-events-none rotate-12"><TrendingUp size={240} /></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
-              <p className="text-slate-500 text-[10px] font-black uppercase mb-1">Ahorro total</p>
-              <div className="flex items-baseline gap-2">
-                <MagicNumber value={totalSaved.toLocaleString()} prefix="$" className="text-4xl font-black text-slate-900" />
-                <span className="text-slate-400 font-medium text-lg">/ ${GOAL_AMOUNT.toLocaleString()}</span>
-              </div>
-              <div className="mt-8 space-y-2">
-                <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
-                  <span>Progreso de {state.purpose}</span>
-                  <span className="text-rose-600 font-bold">{progressPercent.toFixed(1)}%</span>
-                </div>
-                <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 p-0.5">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progressPercent}%` }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-rose-500 to-amber-400 rounded-full shadow-sm"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-center shadow-inner group">
-                <p className="text-slate-400 text-[10px] font-black uppercase mb-1 transition-colors group-hover:text-emerald-500">Sobres Listos</p>
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle2 size={18} className="text-emerald-500" />
-                  <MagicNumber value={completedSlotsCount} className="text-2xl font-black" />
-                </div>
-              </div>
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-center shadow-inner group">
-                <p className="text-slate-400 text-[10px] font-black uppercase mb-1 transition-colors group-hover:text-amber-500">Días Restantes</p>
-                <div className="flex items-center justify-center gap-2">
-                  <Calendar size={18} className="text-amber-500" />
-                  <MagicNumber value={daysLeft} className="text-2xl font-black" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <StatsSummary
+          totalSaved={totalSaved}
+          progressPercent={progressPercent}
+          completedSlotsCount={completedSlotsCount}
+          daysLeft={daysLeft}
+          purpose={state.purpose}
+        />
 
-        {!isChallengeComplete ? (
-          <motion.section
-            layout
-            className={`rounded-3xl p-6 text-white shadow-xl transition-all duration-500 ${isConfirming ? 'bg-emerald-600 shadow-emerald-200' : 'bg-slate-900 shadow-slate-200'}`}
-          >
-            <form onSubmit={onDepositSubmit} className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-lg font-bold">{isConfirming ? '¿Confirmamos este ahorro?' : `Nuevo aporte a ${state.purpose}`}</h3>
-                <p className="text-xs opacity-70">Ahorro compartido para vuestros planes en 2026.</p>
-              </div>
-              <div className="flex w-full md:w-auto gap-3" ref={inputContainerRef}>
-                <div className="relative flex-1 md:w-48">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 font-black">$</span>
-                  <input
-                    type="number"
-                    value={depositAmount}
-                    onChange={(e) => setDepositAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full bg-white/10 border border-white/20 rounded-2xl py-3 pl-8 pr-4 text-white font-black outline-none focus:bg-white/20 transition-all text-lg shadow-inner"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className={`px-8 py-3 rounded-2xl font-black flex items-center gap-2 transition-all active:scale-95 shadow-lg ${isConfirming ? 'bg-white text-emerald-600' : 'bg-rose-500 text-white hover:bg-rose-400'}`}
-                >
-                  {isConfirming ? 'Confirmar' : 'Guardar'} <ArrowRight size={20} />
-                </button>
-              </div>
-            </form>
-          </motion.section>
-        ) : (
-          <section className="bg-slate-900 rounded-3xl p-10 text-white text-center shadow-2xl border-4 border-amber-400/20 relative overflow-hidden">
-            <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute -top-24 -right-24 p-32 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
-            <Trophy size={64} className="mx-auto mb-6 text-amber-400" />
-            <h2 className="text-4xl font-serif font-black mb-3 italic">¡RETO LOGRADO!</h2>
-            <p className="text-rose-100 text-lg">Felicidades, lo habéis conseguido juntos.</p>
-          </section>
-        )}
+        <DepositSection
+          isChallengeComplete={isChallengeComplete}
+          isConfirming={isConfirming}
+          depositAmount={depositAmount}
+          onDepositAmountChange={setDepositAmount}
+          onDepositSubmit={onDepositSubmit}
+          purpose={state.purpose}
+          inputContainerRef={inputContainerRef}
+        />
 
         <div className="space-y-6">
           <div className="flex gap-6 border-b border-slate-200">
