@@ -43,7 +43,7 @@ export const DepositSection: React.FC<DepositSectionProps> = ({
         >
             <form onSubmit={onDepositSubmit} className="flex flex-col md:flex-row gap-4 items-center">
                 <div className="flex-1 text-center md:text-left">
-                    <h3 className="text-lg font-bold">{isConfirming ? '¿Confirmamos este ahorro?' : `Nuevo aporte a ${purpose}`}</h3>
+                    <h3 className="text-lg font-bold">{isConfirming ? '¿Confirmamos este ahorro?' : `Nuevo aporte a ${purpose || 'nuestro sueño'}`}</h3>
                     <p className="text-xs opacity-70">Ahorro compartido para vuestros planes en 2026.</p>
                 </div>
                 <div className="flex w-full md:w-auto gap-3" ref={inputContainerRef}>
