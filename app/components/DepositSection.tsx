@@ -9,7 +9,7 @@ interface DepositSectionProps {
     onDepositAmountChange: (value: string) => void;
     onDepositSubmit: (e: React.FormEvent) => void;
     purpose: string;
-    inputContainerRef: React.RefObject<HTMLDivElement>;
+    inputContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const DepositSection: React.FC<DepositSectionProps> = ({

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import { Cloud, RefreshCw, LogOut, Settings, History } from 'lucide-react';
 

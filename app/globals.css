@@ -21,7 +21,3 @@ body {
 .font-serif {
     font-family: var(--font-serif);
 }
-
-#root {
-    min-height: 100vh;
-}

@@ -23,4 +23,5 @@ export interface SavingsState {
     partner2: string;
   };
   purpose?: string;
+  customLogo?: string;
 }

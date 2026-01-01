@@ -8,12 +8,7 @@ interface DriveFile {
 
 const FILE_NAME = 'ahorro-compartido-2026.json';
 
-export const getAccessToken = (): string | null => {
-    return localStorage.getItem('google_access_token');
-};
-
-export async function findDataFile(): Promise<DriveFile | null> {
-    const token = getAccessToken();
+export async function findDataFile(token: string): Promise<DriveFile | null> {
     if (!token) throw new Error('No hay token de acceso');
 
     const params = new URLSearchParams({
@@ -28,7 +23,7 @@ export async function findDataFile(): Promise<DriveFile | null> {
 
     if (!res.ok) {
         if (res.status === 401) {
-            localStorage.removeItem('google_access_token');
+            throw new Error('AUTH_EXPIRED');
         }
         throw new Error('Error al buscar el archivo en Drive');
     }
@@ -37,8 +32,7 @@ export async function findDataFile(): Promise<DriveFile | null> {
     return data.files?.[0] || null;
 }
 
-export async function downloadFile(fileId: string): Promise<SavingsState> {
-    const token = getAccessToken();
+export async function downloadFile(fileId: string, token: string): Promise<SavingsState> {
     const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
         headers: { Authorization: `Bearer ${token}` }
     });
@@ -47,9 +41,7 @@ export async function downloadFile(fileId: string): Promise<SavingsState> {
     return await res.json();
 }
 
-export async function uploadFile(fileId: string | null, content: SavingsState): Promise<any> {
-    const token = getAccessToken();
-
+export async function uploadFile(fileId: string | null, content: SavingsState, token: string): Promise<DriveFile> {
     if (fileId) {
         // Actualizar archivo existente (solo contenido)
         const url = `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`;

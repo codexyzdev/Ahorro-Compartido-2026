@@ -1,16 +1,18 @@
-import { useGoogleLogin } from '@react-oauth/google';
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useSession, signIn, signOut } from "next-auth/react";
 import { findDataFile, downloadFile, uploadFile } from '../services/drive';
 import { SavingsState } from '../types';
 
 export function useDriveSync(currentState: SavingsState, onPullSuccess: (newState: SavingsState) => void, onResetState: () => void) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const { data: session, status } = useSession();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
     const [isDirty, setIsDirty] = useState(false);
 
+    const isAuthenticated = status === "authenticated";
+    const accessToken = session?.accessToken;
+
     const lastStateRef = useRef<string>(JSON.stringify(currentState));
-    const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // 1. Efecto para detectar cambios locales y marcar como "sucio"
     useEffect(() => {
@@ -23,13 +25,15 @@ export function useDriveSync(currentState: SavingsState, onPullSuccess: (newStat
 
     // 2. Función para descargar desde Drive (Pull)
     const syncFromDrive = useCallback(async () => {
+        if (!accessToken) return;
+
         try {
             setIsSyncing(true);
-            const file = await findDataFile();
+            const file = await findDataFile(accessToken);
 
             if (file) {
                 console.log('📂 Archivo encontrado en Drive, descargando...');
-                const cloudData = await downloadFile(file.id);
+                const cloudData = await downloadFile(file.id, accessToken);
 
                 // Actualizar el estado local a través del callback
                 onPullSuccess(cloudData);
@@ -41,62 +45,57 @@ export function useDriveSync(currentState: SavingsState, onPullSuccess: (newStat
             } else {
                 console.log('🆕 No existe archivo en Drive, se creará uno nuevo en el próximo guardado.');
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error en syncFromDrive:', error);
+            if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+                signIn("google"); // Forzar re-login si el token expiró
+            }
         } finally {
             setIsSyncing(true); // Pequeño delay visual
             setTimeout(() => setIsSyncing(false), 500);
         }
-    }, [onPullSuccess]);
+    }, [onPullSuccess, accessToken]);
 
     // 3. Función para subir a Drive (Push)
     const syncToDrive = useCallback(async () => {
-        if (!isAuthenticated || !isDirty) return;
+        if (!isAuthenticated || !isDirty || !accessToken) return;
 
         try {
             setIsSyncing(true);
-            const file = await findDataFile();
-            await uploadFile(file?.id || null, currentState);
+            const file = await findDataFile(accessToken);
+            await uploadFile(file?.id || null, currentState, accessToken);
 
             setIsDirty(false);
             setLastSyncTime(new Date().toLocaleTimeString());
             console.log('☁️ Sincronización exitosa con Drive (Push)');
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Error en syncToDrive:', error);
+            if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+                signIn("google");
+            }
         } finally {
             setIsSyncing(false);
         }
-    }, [isAuthenticated, isDirty, currentState]);
+    }, [isAuthenticated, isDirty, currentState, accessToken]);
 
-    // 4. Configurar Login de Google
-    const login = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            localStorage.setItem('google_access_token', tokenResponse.access_token);
-            setIsAuthenticated(true);
-            await syncFromDrive();
-        },
-        scope: 'https://www.googleapis.com/auth/drive.file',
-        onError: () => console.error('Login Fallido')
-    });
+    // 4. Wrapper para Login
+    const login = () => signIn("google");
 
+    // 5. Wrapper para Logout
     const logout = () => {
-        localStorage.removeItem('google_access_token');
-        localStorage.removeItem('ahorro_shared_data'); // Limpiar datos locales
-        setIsAuthenticated(false);
-        onResetState(); // Reiniciar estado de la UI
+        signOut();
+        onResetState();
     };
 
-    // 5. Verificar sesión al cargar (Pull inicial)
+    // 6. Verificar sesión al cargar (Pull inicial)
     useEffect(() => {
-        const token = localStorage.getItem('google_access_token');
-        if (token) {
-            setIsAuthenticated(true);
+        if (isAuthenticated && accessToken) {
             syncFromDrive();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Solo al montar
+    }, [isAuthenticated, accessToken]); // Solo cuando cambia el estado de auth
 
-    // 6. Intervalo de 30 segundos para guardado automático (Push)
+    // 7. Intervalo de 30 segundos para guardado automático (Push)
     useEffect(() => {
         if (!isAuthenticated) return;
 
@@ -104,12 +103,12 @@ export function useDriveSync(currentState: SavingsState, onPullSuccess: (newStat
             if (isDirty) {
                 syncToDrive();
             }
-        }, 10000); // Reducido a 10 segundos para mayor confiabilidad
+        }, 10000);
 
         return () => clearInterval(interval);
     }, [isAuthenticated, isDirty, syncToDrive]);
 
-    // 7. Sincronización inmediata al salir o cambiar de pestaña (Visibility API + beforeunload)
+    // 8. Sincronización inmediata al salir o cambiar de pestaña
     useEffect(() => {
         if (!isAuthenticated) return;
 

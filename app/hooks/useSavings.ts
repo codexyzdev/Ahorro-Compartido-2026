@@ -14,20 +14,32 @@ const EMOTIONAL_MESSAGES = [
 ];
 
 export const useSavings = () => {
-  const [state, setState] = useState<SavingsState>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-    return {
+  const [state, setState] = useState<SavingsState>({
       slots: INITIAL_SLOTS,
       history: [],
       coupleNames: { partner1: 'Tú', partner2: 'Tu Pareja' },
       purpose: 'nuestro sueño'
-    };
   });
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, [state]);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setState(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error parsing saved state", e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+  }, [state, isLoaded]);
 
   const totalSaved = useMemo(() =>
     state.slots.reduce((acc, slot) => acc + slot.currentAmount, 0),
