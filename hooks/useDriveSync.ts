@@ -3,7 +3,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { findDataFile, downloadFile, uploadFile } from '../services/drive';
 import { SavingsState } from '../types';
 
-export function useDriveSync(currentState: SavingsState, onPullSuccess: (newState: SavingsState) => void) {
+export function useDriveSync(currentState: SavingsState, onPullSuccess: (newState: SavingsState) => void, onResetState: () => void) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
@@ -81,7 +81,9 @@ export function useDriveSync(currentState: SavingsState, onPullSuccess: (newStat
 
     const logout = () => {
         localStorage.removeItem('google_access_token');
+        localStorage.removeItem('ahorro_shared_data'); // Limpiar datos locales
         setIsAuthenticated(false);
+        onResetState(); // Reiniciar estado de la UI
     };
 
     // 5. Verificar sesión al cargar (Pull inicial)

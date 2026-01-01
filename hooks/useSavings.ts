@@ -135,6 +135,15 @@ export const useSavings = () => {
     setState(prev => ({ ...prev, purpose }));
   };
 
+  const resetState = useCallback(() => {
+    setState({
+      slots: INITIAL_SLOTS,
+      history: [],
+      coupleNames: { partner1: 'Tú', partner2: 'Tu Pareja' },
+      purpose: 'nuestro sueño'
+    });
+  }, []);
+
   return {
     state,
     setState, // Exportado para permitir actualizaciones desde Drive
@@ -148,6 +157,7 @@ export const useSavings = () => {
     handleDeposit,
     updateNames,
     updateLogo,
-    updatePurpose
+    updatePurpose,
+    resetState
   };
 };

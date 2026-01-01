@@ -19,7 +19,8 @@ const App: React.FC = () => {
   const {
     state, setState, totalSaved, remainingToGoal, completedSlotsCount,
     progressPercent, isChallengeComplete, daysLeft,
-    groupedHistory, handleDeposit, updateNames, updateLogo, updatePurpose
+    groupedHistory, handleDeposit, updateNames, updateLogo, updatePurpose,
+    resetState
   } = useSavings();
 
   const handlePullSuccess = React.useCallback((newState: any) => {
@@ -28,7 +29,7 @@ const App: React.FC = () => {
 
   const {
     login, logout, isAuthenticated, isSyncing, lastSyncTime, syncToDrive
-  } = useDriveSync(state, handlePullSuccess);
+  } = useDriveSync(state, handlePullSuccess, resetState);
 
 
   const [depositAmount, setDepositAmount] = useState('');
