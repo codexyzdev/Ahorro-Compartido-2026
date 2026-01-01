@@ -102,9 +102,35 @@ export function useDriveSync(currentState: SavingsState, onPullSuccess: (newStat
             if (isDirty) {
                 syncToDrive();
             }
-        }, 30000);
+        }, 10000); // Reducido a 10 segundos para mayor confiabilidad
 
         return () => clearInterval(interval);
+    }, [isAuthenticated, isDirty, syncToDrive]);
+
+    // 7. Sincronización inmediata al salir o cambiar de pestaña (Visibility API + beforeunload)
+    useEffect(() => {
+        if (!isAuthenticated) return;
+
+        const handleExiting = () => {
+            if (isDirty) {
+                console.log('🚀 Intentando guardado de emergencia antes de salir...');
+                syncToDrive();
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden') {
+                handleExiting();
+            }
+        };
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('beforeunload', handleExiting);
+
+        return () => {
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('beforeunload', handleExiting);
+        };
     }, [isAuthenticated, isDirty, syncToDrive]);
 
     return {
